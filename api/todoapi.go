@@ -82,13 +82,19 @@ func (a *TodoApi) updateTodoByID(context *gin.Context) {
 	}
 
 	id := context.Param("id")
-	todo, err := a.service.FindById(id)
-	if err != nil {
+
+	found, updated, err := a.service.UpdateTodo(id, update)
+
+	if !found {
 		context.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 
-	updated, err := a.service.UpdateTodo(todo, update)
+	if updated == nil {
+		context.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
 	if err != nil {
 		context.AbortWithStatus(http.StatusBadRequest)
 		return

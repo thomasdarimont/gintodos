@@ -1,5 +1,7 @@
 package model
 
+import "errors"
+
 type TodoService struct {
 	repository TodoRepository
 }
@@ -28,11 +30,15 @@ func (s *TodoService) CreateTodo(entry TodoNew) (*Todo, error) {
 	return s.Save(t)
 }
 
-func (s *TodoService) UpdateTodo(todo *Todo, update *TodoUpdate) (*Todo, error) {
+func (s *TodoService) UpdateTodo(id string, update *TodoUpdate) (bool, *Todo, error) {
 
-	storedTodo, err := s.FindById(todo.ID)
+	storedTodo, err := s.FindById(id)
 	if err != nil {
-		return nil, err
+		return false, nil, err
+	}
+
+	if storedTodo == nil {
+		return false, nil, errors.New("notfound")
 	}
 
 	if update.Item != "" {
@@ -41,10 +47,12 @@ func (s *TodoService) UpdateTodo(todo *Todo, update *TodoUpdate) (*Todo, error) 
 	}
 
 	if update.MaybeCompleted.Valid {
+		// only change completed status if we actually received and update for it
 		storedTodo.Completed = update.MaybeCompleted.Bool
 	}
 
-	return s.Save(storedTodo)
+	saved, err := s.Save(storedTodo)
+	return true, saved, err
 }
 
 func (s *TodoService) Save(todo *Todo) (*Todo, error) {
