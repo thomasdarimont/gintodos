@@ -12,7 +12,7 @@ type TodoApi struct {
 	service *model.TodoService
 }
 
-func RegisterTodoAPI(router *gin.Engine) {
+func RegisterTodoEndpoints(router *gin.Engine) {
 
 	api := &TodoApi{
 		service: model.NewTodoService(store.NewMemoryTodoStore(), data.NewExampleDataInitializer()),

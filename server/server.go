@@ -6,9 +6,8 @@ import (
 )
 
 func Run() {
-	router := gin.Default()
-
-	api.RegisterTodoAPI(router)
-
-	router.Run("localhost:9090")
+	r := gin.Default()
+	api.RegisterTodoEndpoints(r)
+	api.RegisterMonitoringEndpoints(r)
+	_ = r.Run("localhost:9090")
 }
